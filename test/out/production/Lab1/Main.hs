@@ -1,6 +1,6 @@
 module Main (main) where
 
-import Lib
+-- Oscar Dahlberg - 9703146994
 
 lab1 :: [Int] -> Int -> IO ()
 lab1 xs k = putStrLn (show xs) >> putStrLn (show k) >> putStrLn "Size  Firt index Last index  Sublist" >>
@@ -64,9 +64,6 @@ fullSubLists xs i j = [(sum xs, xs, (i, j))] ++ prefixIndexSubLists (init xs) i 
 prefixIndexSubLists :: [Int] -> Int -> Int -> [(Int, [Int], (Int, Int))]
 prefixIndexSubLists [xs] i j = [(xs, [xs], (i, j))]
 prefixIndexSubLists xs i j = [(sum xs, xs, (i, j))] ++ prefixIndexSubLists (init xs) i (j-1)
-
-
- 
 
 main :: IO ()
 main = do
