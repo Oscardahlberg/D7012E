@@ -133,6 +133,7 @@ findzero var body x = find x f f'
 
 main :: IO ()
 main = do
+    print (show (unparse (simplify (diff (Var "x") (parse "exp(sin(2*x))")))))
     print (show (mkfun (parse "1", Var "x") 3.0)) -- 1
     print (show (findzero "x" "x*x*x+x-1" 1.0)) -- 0.68232775
     print (show (findzero "y" "cos(y)*sin(y)" 2.0)) -- 1.5707964
