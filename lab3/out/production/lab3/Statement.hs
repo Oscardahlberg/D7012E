@@ -39,7 +39,7 @@ buildSkip _ = Skip
 begin = (accept "begin" -# statements) #- require "end" >-> buildBegin
 buildBegin = Begin
 
-repeat = accept "repeat" -# statement # (require "until" -# Expr.parse) #- require ";" >-> buildRepeat
+repeat = accept "repeat" -# statement # require "until" -# Expr.parse #- require ";" >-> buildRepeat
 buildRepeat (s1, e) = Repeat s1 e
 
 exec :: [T] -> Dictionary.T String Integer -> [Integer] -> [Integer]
@@ -68,12 +68,10 @@ exec (Skip:stmts) dict input =
 exec (Begin stmt : stmts) dict input =
     exec (stmt ++ stmts) dict input
 
-exec (Repeat do' cond:stmts) dict input = exec (do' : next) dict input
-  where
-    next
-      | Expr.value cond dict <= 0 = Repeat do' cond : stmts
-      | otherwise = stmts
-
+exec (Repeat doStmts cond: stmts) dict input = 
+    if Expr.value cond dict>0
+        then exec (doStmts: (Repeat doStmts cond: stmts)) dict input
+        else exec (doStmts: stmts) dict input
 
 exec _ _ _ = []
 

@@ -27,7 +27,7 @@ import Prelude hiding (return, fail)
 import Parser hiding (T)
 import qualified Dictionary
 
-data Expr = Num Integer | Var String | Add Expr Expr 
+data Expr = Num Integer | Var String | Add Expr Expr
        | Sub Expr Expr | Mul Expr Expr | Div Expr Expr
          deriving Show
 
@@ -53,10 +53,10 @@ factor = num !
          var !
          lit '(' -# expr #- lit ')' !
          err "illegal factor"
-             
+
 term' e = mulOp # factor >-> bldOp e #> term' ! return e
 term = factor #> term'
-       
+
 expr' e = addOp # term >-> bldOp e #> expr' ! return e
 expr = term #> expr'
 
@@ -79,7 +79,7 @@ value (Var v) dict =
 value (Add t u) dict = value t dict + value u dict
 value (Sub t u) dict = value t dict - value u dict
 value (Mul t u) dict = value t dict * value u dict
-value (Div t u) dict = 
+value (Div t u) dict =
   if value u dict == 0 then
     error "Trying to divide by zero"
   else

@@ -10,24 +10,26 @@ main = do
 
     -- Test Program
     -- putStrLn $ "rp: " ++ show rp
-    -- putStrLn $ "rp1: " ++ show rp1
+    --putStrLn $ "rp1: " ++ show rp1
     -- sp
-    -- putStrLn $ "rp2: " ++ show rp2
+    putStrLn $ "rp2: " ++ show rp2
+    putStrLn $ "rp3: " ++ show rp3
+    putStrLn $ "rp4: " ++ show rp4
 
     -- Test Statement
-    {-
-    putStrLn $ "p1: " ++ show p1
-    putStrLn $ "p2: " ++ show p2
-    putStrLn $ "p3: " ++ show p3
-    putStrLn $ "p4: " ++ show p4
-    putStrLn $ "p5: " ++ show p5
-    putStrLn $ "p6: " ++ show p6
-    putStrLn $ "p7: " ++ show p7
-    putStrLn $ "p8: " ++ show p8
-    putStrLn $ "p9: " ++ show p9
-    putStrLn $ "p10: " ++ show p10
-    putStrLn $ "p11: " ++ show p11 {--}-}
-    putStrLn $ "p13: " ++ show p13 
+
+    --putStrLn $ "p1: " ++ show p1
+    --putStrLn $ "p2: " ++ show p2
+    --putStrLn $ "p3: " ++ show p3
+    --putStrLn $ "p4: " ++ show p4
+    --putStrLn $ "p5: " ++ show p5
+    --putStrLn $ "p6: " ++ show p6
+    --putStrLn $ "p7: " ++ show p7
+    --putStrLn $ "p8: " ++ show p8
+    --putStrLn $ "p9: " ++ show p9
+    --putStrLn $ "p10: " ++ show p10
+    --putStrLn $ "p12: " ++ show p12
+    --putStrLn $ "p13: " ++ show p13
 
   -- Test Parser
   {-

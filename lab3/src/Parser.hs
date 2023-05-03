@@ -12,8 +12,8 @@ type T a = Parser a
 err :: String -> Parser a
 err message cs = error (message++" near "++cs++"\n")
 
-iter :: Parser a -> Parser [a]  
-iter m = m # iter m >-> cons ! return [] 
+iter :: Parser a -> Parser [a]
+iter m = m # iter m >-> cons ! return []
 
 cons(a, b) = a:b
 
@@ -66,8 +66,8 @@ require w = accept w ! err "Program error: "
 lit :: Char -> Parser Char
 lit c = token char ? (==c)
 
-digit :: Parser Char 
-digit = char ? isDigit 
+digit :: Parser Char
+digit = char ? isDigit
 
 digitVal :: Parser Integer
 digitVal = digit >-> digitToInt >-> fromIntegral

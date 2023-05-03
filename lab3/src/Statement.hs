@@ -39,7 +39,7 @@ buildSkip _ = Skip
 begin = (accept "begin" -# statements) #- require "end" >-> buildBegin
 buildBegin = Begin
 
-repeat = accept "repeat" -# statement # (require "until" -# Expr.parse) #- require ";" >-> buildRepeat
+repeat = accept "repeat" -# statement # require "until" -# Expr.parse #- require ";" >-> buildRepeat
 buildRepeat (s1, e) = Repeat s1 e
 
 exec :: [T] -> Dictionary.T String Integer -> [Integer] -> [Integer]

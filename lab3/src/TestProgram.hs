@@ -27,7 +27,7 @@ pr1 = fromString  "\
 \    q := n/b;\
 \    r := n - q*b;\
 \    write r;\
-\    s := p*r+s;\                    
+\    s := p*r+s;\
 \    p := p*10;\
 \    n :=q;\
 \  end\
@@ -48,6 +48,26 @@ pr2 = fromString  "\
 \until n-m;\
 \write m;"
 
+p3 = fromString "\
+\read n;\
+\s := 0;\
+\repeat\
+\  begin\
+\    s := s + n;\
+\    n := n - 1;\
+\  end\
+\until n;\
+\write n;"
+
+p4 = fromString "\
+\count := 0;\
+\repeat\
+\   begin\
+\       count := count + 1;\
+\   end\
+\until 0-count;\
+\write count;"
+
 sp = putStr (toString pr)
 
 rp = Program.exec pr [3,16]
@@ -55,3 +75,7 @@ rp = Program.exec pr [3,16]
 rp1 = Program.exec pr1 [1024, 2]
 
 rp2 = Program.exec pr2 [3, 16]
+
+rp3 = Program.exec p3 [3] -- Should be [6]
+
+rp4 = Program.exec p4 []
