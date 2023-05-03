@@ -88,7 +88,7 @@ fromParsed (Begin (s:s1)) = "begin\n" ++ toString s ++ stmts s1 ++ "end" ++ "\n"
         stmts [] = ""
         stmts [sF] = toString sF
         stmts (sF:sR) = toString sF ++ stmts sR
-fromParsed (Repeat s1 e) = "repeat\n" ++ toString s1 ++ "until " ++ toString e
+fromParsed (Repeat s1 e) = "repeat\n" ++ toString s1 ++ "until " ++ toString e ++ "\n"
 
 instance Parse Statement where
   parse = statement

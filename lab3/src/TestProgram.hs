@@ -79,3 +79,5 @@ rp2 = Program.exec pr2 [3, 16]
 rp3 = Program.exec p3 [3] -- Should be [6]
 
 rp4 = Program.exec p4 []
+
+rp5 = Program.toString p4

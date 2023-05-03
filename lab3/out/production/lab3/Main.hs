@@ -10,11 +10,12 @@ main = do
 
     -- Test Program
     -- putStrLn $ "rp: " ++ show rp
-    -- putStrLn $ "rp1: " ++ show rp1
+    --putStrLn $ "rp1: " ++ show rp1
     -- sp
     putStrLn $ "rp2: " ++ show rp2
     putStrLn $ "rp3: " ++ show rp3
     putStrLn $ "rp4: " ++ show rp4
+    putStrLn $ "rp5: " ++ show rp5
 
     -- Test Statement
 
