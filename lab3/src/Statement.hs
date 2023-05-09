@@ -69,9 +69,11 @@ exec (Begin stmt : stmts) dict input =
     exec (stmt ++ stmts) dict input
 
 exec (Repeat doStmts cond: stmts) dict input = 
-    if Expr.value cond dict>0
-        then exec (doStmts: (Repeat doStmts cond: stmts)) dict input
-        else exec (doStmts: stmts) dict input
+    exec (doStmts: after) dict input
+      where
+	after
+	 | Expr.value cond dict <= 0 = Repeat doStmts cond : stmts
+	 | otherwise = stmts
 
 exec _ _ _ = []
 

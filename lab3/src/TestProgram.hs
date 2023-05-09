@@ -65,7 +65,7 @@ p4 = fromString "\
 \   begin\
 \       count := count + 1;\
 \   end\
-\until 0-count;\
+\until 1;\
 \write count;"
 
 sp = putStr (toString pr)

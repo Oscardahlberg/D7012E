@@ -110,7 +110,7 @@ simplify (Op oper left right) =
       ("/",e,Const 1) -> e
       ("-",le,re)     -> if left==right then Const 0 else Op "-" le re
       (op,le,re)      -> Op op le re
-simplify (App func arg) = App func arg
+simplify (App func arg) = App func (Simplify arg)
 
 --        body  var
 mkfun :: (EXPR, EXPR) -> (Float -> Float)
