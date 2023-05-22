@@ -42,7 +42,7 @@ solve(State, _, [completed | []]) :-
     member('package', Items).
 
 solve(State, CurDepth, [Action | Actions]) :-
-    CurDepth < 12,
+    CurDepth < 13,
     NextDepth is CurDepth + 1,
     action(State, Action, NewState),
     solve(NewState, NextDepth, Actions).
