@@ -3,7 +3,28 @@ start() :- solve(state([], k)).
 solve
 
 
-kSmallestSubArrays(state([], k), NewState) :-
+kSmallestSubArrays(state(Arr, k), KSmallestSorted) :-
+    length(Arr, ArrSize),
+    fullSubLists(state(Arr, 1, ArrSize), SubLists),
+    length(Sublists, Size)
+    sortedSubset(SubLists, Size, k, KSmallestSorted).
+
+sortedSubSet(SubLists, Size, _, Sorted) :-
+    Size == 1,
+    Sorted is Sublists.
+
+sortedSubSet(Sublists, Size, k, Sorted) :-
+    Size == k,
+    insertionSort(Sublists, Sorted).
+
+sortedSubSet(Sublists, Size, k, KSmallest) :-
+    Size > k,
+    insertionSort(Sublists, Sorted),
+    kSmallest(Sorted, k, KSmallest).
+
+kSmallest(Sorted, k, KSmallest)
+
+insertionSort() :-
 
 
 fullSubLists(state(Arr, FirstIndex, LastIndex), [(ArrSum, Arr, (FirstIndex, LastIndex))| NewState]) :-
