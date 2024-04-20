@@ -1,40 +1,44 @@
-start() :- calcKSmallest(state(Arr, k)).
+start(Arr, K) :- calcKSmallest(Arr, K).
 
-calcKSmallest(state(Arr, k)) :-
-    write('Sum        List    First Index  Second Index'),
-    kSmallestSubArrays(state(Arr, k), KSmallestSorted),
+calcKSmallest(Arr, K) :-
+    writeln('Sum   List  First Index  Second Index'),
+    kSmallestSubArrays(Arr, K, KSmallestSorted),
     printItems(KSmallestSorted).
 
 printItems([]).
-printItems([Item|Rest]) :-
-     writeln(Item),
-     printItems(Rest).
+printItems([(Sum, Arr, FirstIndex, LastIndex)|Rest]) :-
+    write(Sum),
+    write("     "),
+    write(Arr),
+    write("     "),
+    write(FirstIndex),
+    write("             "),
+    writeln(LastIndex),
+    printItems(Rest).
 
-kSmallestSubArrays(state(Arr, k), KSmallestSorted) :-
+kSmallestSubArrays(Arr, K, KSmallestSorted) :-
     length(Arr, ArrSize),
-    fullSubLists(state(Arr, 1, ArrSize), SubLists),
+    fullSubLists(Arr, 1, ArrSize, SubLists),
     length(SubLists, Size),
-    smallestSubset(SubLists, Size, k, KSmallestSorted).
+    smallestSubset(SubLists, Size, K, KSmallestSorted).
 
 smallestSubset(SubLists, Size, _, Sorted) :-
     Size =:= 1,
     Sorted = SubLists.
 
-smallestSubset(SubLists, Size, k, Sorted) :-
-    Size =:= k,
+smallestSubset(SubLists, Size, K, Sorted) :-
+    Size =:= K,
     insertionSort(SubLists, Sorted).
 
-smallestSubset(SubLists, Size, k, KSmallest) :-
-    Size > k,
+smallestSubset(SubLists, Size, K, KSmallest) :-
+    Size > K,
     insertionSort(SubLists, Sorted),
-    kSmallest(Sorted, k, KSmallest).
+    kSmallest(Sorted, K, KSmallest).
 
-kSmallest(_, 0, []).
-kSmallest([First|RestArr], k, KSmallest) :-
-    Rest is k - 1,
-    Rest > 0,
-    kSmallest(RestArr, Rest, Larger),
-    append(First, Larger, KSmallest).
+kSmallest([First|_], 1, [First]).
+kSmallest([First|RestArr], K, [First|Larger]) :-
+    Rest is K - 1,
+    kSmallest(RestArr, Rest, Larger).
 
 insertionSort([], []).
 insertionSort([X|Rest], Sorted) :-
@@ -48,31 +52,29 @@ insert((Sum, Arr, Idx), [(SumY, ArrY, IdxY)|Rest], [(SumY, ArrY, IdxY)|Sorted]) 
     Sum > SumY,
     insert((Sum, Arr, Idx), Rest, Sorted).
 
-fullSubLists(state(Arr, FirstIndex, LastIndex), [(Sum, Arr, (FirstIndex, LastIndex))| NewState]) :-
+fullSubLists([LastItem], FIdx, LIdx, [(LastItem, [LastItem], (FIdx, LIdx))]).
+fullSubLists(Arr, FirstIndex, LastIndex, [(Sum, Arr, (FirstIndex, LastIndex))| NewState]) :-
     sumList(Arr, Sum),
-    length(Arr, Size),
-    Size > 1,
     removeLast(Arr, Head),
     NewLast is LastIndex - 1,
-    prefixIndexSubLists(state(Head, FirstIndex, NewLast), PrefixSubLists),
-    tail(Arr, Tail),
+    prefixIndexSubLists(Head, FirstIndex, NewLast, PrefixSubLists),
+    removeFirst(Arr, Tail),
     NewFirst is FirstIndex + 1,
-    fullSubLists(state(Tail, NewFirst, LastIndex), SuffixSubLists),
+    fullSubLists(Tail, NewFirst, LastIndex, SuffixSubLists),
     append(PrefixSubLists, SuffixSubLists, NewState).
 
-prefixIndexSubLists(state([LastItem], Idx), [(Sum, LastItem, Idx)]) :-
-    sumList(Arr, Sum).
-prefixIndexSubLists(state(Arr, FirstIndex, LastIndex), [(Sum, Arr, (FirstIndex, LastIndex)) | PrefixSubLists]) :-
+prefixIndexSubLists([LastItem], FIdx, LIdx, [(LastItem, [LastItem], (FIdx, LIdx))]).
+prefixIndexSubLists(Arr, FirstIndex, LastIndex, [(Sum, Arr, (FirstIndex, LastIndex)) | PrefixSubLists]) :-
     sumList(Arr, Sum),
-    length(Arr, Size),
-    Size > 1,
     removeLast(Arr, Head),
     NewLast is LastIndex - 1,
-    prefixIndexSubLists(state(Head, FirstIndex, NewLast)), PrefixSubLists).
+    prefixIndexSubLists(Head, FirstIndex, NewLast, PrefixSubLists).
 
 removeLast([_], []).
 removeLast([X|Xs], [X|Rest]) :-
     removeLast(Xs, Rest).
+
+removeFirst([_|Xs], Xs).
 
 sumList([], 0).
 sumList([Head|Tail], Sum) :-
