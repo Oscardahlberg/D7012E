@@ -1,7 +1,8 @@
 start(Arr, K) :- calcKSmallest(Arr, K).
 
 calcKSmallest(Arr, K) :-
-    writeln('Sum   List  First Index  Second Index'),
+    writeln('Sum   i     j     List'),
+    writeln('----------------------'),
     kSmallestSubArrays(Arr, K, KSmallestSorted),
     printItems(KSmallestSorted).
 
@@ -9,11 +10,11 @@ printItems([]).
 printItems([(Sum, Arr, FirstIndex, LastIndex)|Rest]) :-
     write(Sum),
     write("     "),
-    write(Arr),
-    write("     "),
     write(FirstIndex),
-    write("             "),
-    writeln(LastIndex),
+    write("     "),
+    write(LastIndex),
+    write("    "),
+    writeln(Arr),
     printItems(Rest).
 
 kSmallestSubArrays(Arr, K, KSmallestSorted) :-
