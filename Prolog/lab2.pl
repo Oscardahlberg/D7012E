@@ -1,3 +1,5 @@
+% Oscar Dahlberg, oscdah-9
+
 start(Arr, K) :- calcKSmallest(Arr, K).
 
 calcKSmallest(Arr, K) :-
