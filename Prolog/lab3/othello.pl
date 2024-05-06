@@ -1,4 +1,4 @@
-/* ------------------------------------------------------- */
+/* shaper and maven when you log in ------------------------------------------------------- */
 %
 %    D7012E Declarative languages
 %    Luleå University of Technology
@@ -45,7 +45,7 @@
 
 
 
-
+%
 
 % /* ------------------------------------------------------ */
 
@@ -65,13 +65,12 @@
 % DO NOT CHANGE THE COMMENT BELOW.
 %
 % given helper: Inital state of the board
-
-initBoard([ [.,.,.,.,.,.], 
-            [.,.,.,.,.,.],
-	    [.,.,1,2,.,.], 
-	    [.,.,2,1,.,.], 
-            [.,.,.,.,.,.], 
-	    [.,.,.,.,.,.] ]).
+initBoard([[e,e,e,e,e,e],
+    [e,e,e,e,e,e],
+    [e,e,o,x,e,e],
+    [e,e,x,o,e,e],
+    [e,e,e,e,e,e],
+    [e,e,e,e,e,e]],1).
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
@@ -80,9 +79,8 @@ initBoard([ [.,.,.,.,.,.],
 %%%  holds iff InitialState is the initial state and 
 %%%  InitialPlyr is the player who moves first. 
 
-
-
-
+initialize(InitialState,InitialPlyr) :-
+    initBoard(InitialState, InitialPlyr).
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
@@ -93,6 +91,30 @@ initBoard([ [.,.,.,.,.,.],
 %     Plyr has a higher score than the other player 
 
 
+% Determines the winner based on amount of white and black pieces left
+winner(State, Plyr) :-
+    blackCount(State, BlackCount), 
+    whiteCount(State, WhiteCount),
+    (
+        BlackCount > WhiteCount -> Plyr = 1 ;
+        BlackCount < WhiteCount -> Plyr = 2
+    ).
+
+scoreCount([], _, 0).
+scoreCount([Row|Rest], Plyr, PlyrCount) :-
+    rowScoreCount(Row, Plyr, RowCount),
+    scoreCount(Rest, Plyr, RestCount),
+    PlyrCount is RowCount + RestCount.
+
+rowScoreCount([], _, 0).
+rowScoreCount(['x'|Row], Plyr, BCount) :-
+    rowScoreCount(Row, Plyr, RestCount),
+    Plyr =:= 2,
+    BCount is RestCount + 1.
+rowScoreCount(['o'|Row], Plyr, BCount) :-
+    rowScoreCount(Row, Plyr, RestCount),
+    Plyr =:= 1,
+    BCount is RestCount + 1.
 
 
 
@@ -103,8 +125,15 @@ initBoard([ [.,.,.,.,.,.],
 %% define tie(State) here. 
 %    - true if terminal State is a "tie" (no winner) 
 
+% Checks both players to see if anyone have any moves left
 
-
+tie(State):- \+ winner(State, _),
+              moves(1,State, WMvList),
+              moves(2,State, BMvList),
+              length(BMvList, BN),
+              BN > 0,
+              length(WMvList, WN),
+              WN > 0.  
 
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
@@ -114,9 +143,8 @@ initBoard([ [.,.,.,.,.,.],
 %% define terminal(State). 
 %   - true if State is a terminal   
 
-
-
-
+terminal(State) :- winner(State,_).
+terminal(State) :- tie(State).
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
@@ -147,9 +175,36 @@ printList([H | L]) :-
 %   - returns list MvList of all legal moves Plyr can make in State
 %
 
+% sort is based on insertion sort
+% it sorts it by beginning with a list of the last element
+% then checks if the next element row and column index is smaller or equal to its
+% if not it places it after itself on the list
+% if there are more elements it will give it to the next element in the list
+moves(Plyr, State, MvList) :-
+    checkMoves(Plyr, State, State, 0, FndMoves),
+    sortMoves(Proposed, MvList).
 
+checkMoves(Plyr, State, [Row|Rest], RowIndex, [RowMoves|RestMoves]) :-
+    NextRowIndex is RowIndex + 1,
+    checkMoves(Plyr, State, Rest, NextRowIndex, RestMoves),
+    checkRowMoves(Plyr, State, Row, NextRowIndex, 0, RowMoves).
 
+checkRowMoves(Plyr, State, [Column|RestRow], RowIndex, ColumnIndex, [ValidMoves|RowMoves]) :-
+    NextColumnIndex is ColumnIndex + 1,
+    checkRowMoves(Plyr, RestRow, NextColumnIndex, RowMoves),
+    validmove(Plyr, State, [RowIndex|ColumnIndex]).
+   
+sortMoves([])
+sortMoves([First|Rest], Sorted) :-
+    sortMoves(Rest, SortedRest),
+    sort(First, SortedRest, Sorted).
 
+sort(Move, [], [Move]).
+sort([Row1, Column1], [[Row2, Column2]|Rest], [[Row1, Column1]|Sorted]) :-
+    Row1 =< Row2,
+    Column1 =< Column2,
+    sort([Row1|Column1], Rest, Sorted).
+sort(Move1, Move2, [Move1|Move2]).
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
@@ -160,9 +215,61 @@ printList([H | L]) :-
 %     state) and NextPlayer (i.e. the next player who will move).
 %
 
+% First finds the correct row
+% then the correct column by iterativly
+% decreaseing the move row & column indexes by 1
+% until it they hit 0
+% Then placing a x or o respectively
+
+
+nextState(Plyr, Move, State, NewState, NextPlyr) :-
+    (
+        Plyr =:= 1 -> NextPlyr is 2 ;
+        Plyr =:= 2 -> NextPlyr is 1
+    ),
+    set(State, NewState, Move, Plyr),
+    checkSetDirection(Plyr, Move, NewState, -1, -1, State1), % NW
+    checkSetDirection(Plyr, Move, State1, -1, 0, State2), % N
+    checkSetDirection(Plyr, Move, State2, -1, 1, State3), % NE
+    checkSetDirection(Plyr, Move, State3, 0, -1, State4), % W
+    checkSetDirection(Plyr, Move, State4, 0, 1, State5), % E
+    checkSetDirection(Plyr, Move, State5, 1, -1, State6), % SW
+    checkSetDirection(Plyr, Move, State6, 1, 0, State7), % S
+    checkSetDirection(Plyr, Move, State7, 1, 1, State8). % SE
+
+checkSetDirection(Plyr, [Row|Column], State, DirectionRow, DirectionColumn, NewState) :-
+    NextRow is Row + DirectionRow,
+    NextRow > 0,
+    NextRow < 6,
+    NextColumn is Column + DirectionColumn,
+    NextColumn > 0,
+    NextColumn < 6,
+    get(State, [NextRow, NextColumn], Value),
+    checkNext(Plyr, State, [NextRow|NextColumn], Value, DirectionRow, DirectionColumn, Newstate).
+
+
+checkNext(Plyr, State, [NextRow|NextColumn], Value, DirectionRow, DirectionColumn, Newstate) :-
+    Value =:= 1,
 
 
 
+
+    %findMove(Plyr, [0, ColumnIdx], [Row|Rest], NewState) :-
+    %    findColumn(Plyr, ColumnIdx, Row, NewRow).
+    %    append(NewRow, Rest, NewState).
+    %findMove(Plyr, [RowIdx, ColumnIdx], [Row|Rest], NewState) :-
+    %    NewRowIdx is RowIdx - 1,
+    %    findMove(Plyr, [NewRowIdx, ColumnIdx], Rest, Inserted),
+    %    append(Row, Inserted, NewState).
+    %
+    %findColumn(Plyr, 0, [_|Rest], [Symbol|Rest]) :-
+    %    (
+    %        Plyr =:= 0 -> Symbol is 'o' ;
+    %        Plyr =:= 1 -> Symbol is 'x'
+    %    ).
+    %findColumn(Plyr, ColumnIdx, [Idx|Rest], [Idx|NewRow]) :-
+    %    NewColumnIdx is ColumnIdx - 1,
+    %    findColumn(Plyr, NewColumnIdx, Rest, NewRow).
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
@@ -170,6 +277,14 @@ printList([H | L]) :-
 %% 
 %% define validmove(Plyr,State,Proposed). 
 %   - true if Proposed move by Plyr is valid at State.
+
+
+validmove(Plyr, State, [Row|Column]) :-
+    valid_move(Plyr, State, Row, Column).
+
+valid_move(Plyr, State, Row, Column) :-
+
+
 
 
 
