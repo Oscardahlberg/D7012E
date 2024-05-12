@@ -59,18 +59,15 @@
 %    2 means player two has a stone in this position. 
 
 
-
-
-
 % DO NOT CHANGE THE COMMENT BELOW.
 %
 % given helper: Inital state of the board
-initBoard([[e,e,e,e,e,e],
-    [e,e,e,e,e,e],
-    [e,e,o,x,e,e],
-    [e,e,x,o,e,e],
-    [e,e,e,e,e,e],
-    [e,e,e,e,e,e]],1).
+initBoard([['.','.','.','.','.','.'],
+    ['.','.','.','.','.','.'],
+    ['.','.',1,2,'.','.'],
+    ['.','.',2,1,'.','.'],
+    ['.','.','.','.','.','.'], 
+    ['.','.','.','.','.','.']],1).
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
@@ -90,33 +87,27 @@ initialize(InitialState,InitialPlyr) :-
 %     - returns winning player if State is a terminal position and
 %     Plyr has a higher score than the other player 
 
-
 % Determines the winner based on amount of white and black pieces left
 winner(State, Plyr) :-
-    blackCount(State, BlackCount), 
-    whiteCount(State, WhiteCount),
+    score(State, 1, FirstPlyrScore), 
+    score(State, 2, SndPlyrScore),
     (
-        BlackCount > WhiteCount -> Plyr = 1 ;
-        BlackCount < WhiteCount -> Plyr = 2
+        FirstPlyrScore < SndPlyrScore -> Plyr = 1 ;
+        FirstPlyrScore > SndPlyrScore -> Plyr = 2
     ).
 
-scoreCount([], _, 0).
-scoreCount([Row|Rest], Plyr, PlyrCount) :-
+score([], _, 0).
+score([Row|Rest], Plyr, PlyrCount) :-
     rowScoreCount(Row, Plyr, RowCount),
-    scoreCount(Rest, Plyr, RestCount),
+    score(Rest, Plyr, RestCount),
     PlyrCount is RowCount + RestCount.
 
 rowScoreCount([], _, 0).
-rowScoreCount(['x'|Row], Plyr, BCount) :-
+rowScoreCount([Plyr|Row], Plyr, ScoreCount) :-
     rowScoreCount(Row, Plyr, RestCount),
-    Plyr =:= 2,
-    BCount is RestCount + 1.
-rowScoreCount(['o'|Row], Plyr, BCount) :-
-    rowScoreCount(Row, Plyr, RestCount),
-    Plyr =:= 1,
-    BCount is RestCount + 1.
-
-
+    ScoreCount is RestCount + 1.
+rowScoreCount([_|Row], Plyr, RestCount) :-
+    rowScoreCount(Row, Plyr, RestCount).
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
@@ -125,16 +116,12 @@ rowScoreCount(['o'|Row], Plyr, BCount) :-
 %% define tie(State) here. 
 %    - true if terminal State is a "tie" (no winner) 
 
-% Checks both players to see if anyone have any moves left
+% If both moves calls return 
 
-tie(State):- \+ winner(State, _),
-              moves(1,State, WMvList),
-              moves(2,State, BMvList),
-              length(BMvList, BN),
-              BN > 0,
-              length(WMvList, WN),
-              WN > 0.  
-
+tie(State):- 
+    \+ winner(State, _),
+    \+ moves(1,State, _),
+    \+ moves(2,State, _).
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
@@ -181,20 +168,22 @@ printList([H | L]) :-
 % if not it places it after itself on the list
 % if there are more elements it will give it to the next element in the list
 moves(Plyr, State, MvList) :-
-    checkMoves(Plyr, State, State, 0, FndMoves),
+    checkMoves(Plyr, State, 0, Proposed),
     sortMoves(Proposed, MvList).
 
-checkMoves(Plyr, State, [Row|Rest], RowIndex, [RowMoves|RestMoves]) :-
-    NextRowIndex is RowIndex + 1,
-    checkMoves(Plyr, State, Rest, NextRowIndex, RestMoves),
-    checkRowMoves(Plyr, State, Row, NextRowIndex, 0, RowMoves).
+checkMoves(_, _, 6, []).
+checkMoves(Plyr, State, RowIdx, [RowMoves|RestMoves]) :-
+    NextRowIdx is RowIdx + 1,
+    checkMoves(Plyr, State, NextRowIdx, RestMoves),
+    checkRowMoves(Plyr, State, [RowIdx, 0], RowMoves).
 
-checkRowMoves(Plyr, State, [Column|RestRow], RowIndex, ColumnIndex, [ValidMoves|RowMoves]) :-
-    NextColumnIndex is ColumnIndex + 1,
-    checkRowMoves(Plyr, RestRow, NextColumnIndex, RowMoves),
-    validmove(Plyr, State, [RowIndex|ColumnIndex]).
+checkRowMoves(_, _, [_, 6], []).
+checkRowMoves(Plyr, State, [RowIdx, ColumnIdx], [[RowIdx|ColumnIdx]|RowMoves]) :-
+    NextColumnIdx is ColumnIdx + 1,
+    checkRowMoves(Plyr, State, [RowIdx, NextColumnIdx], RowMoves),
+    validmove(Plyr, State, [RowIdx|ColumnIdx]).
    
-sortMoves([])
+sortMoves([]).
 sortMoves([First|Rest], Sorted) :-
     sortMoves(Rest, SortedRest),
     sort(First, SortedRest, Sorted).
@@ -228,48 +217,46 @@ nextState(Plyr, Move, State, NewState, NextPlyr) :-
         Plyr =:= 2 -> NextPlyr is 1
     ),
     set(State, NewState, Move, Plyr),
-    checkSetDirection(Plyr, Move, NewState, -1, -1, State1), % NW
-    checkSetDirection(Plyr, Move, State1, -1, 0, State2), % N
-    checkSetDirection(Plyr, Move, State2, -1, 1, State3), % NE
-    checkSetDirection(Plyr, Move, State3, 0, -1, State4), % W
-    checkSetDirection(Plyr, Move, State4, 0, 1, State5), % E
-    checkSetDirection(Plyr, Move, State5, 1, -1, State6), % SW
-    checkSetDirection(Plyr, Move, State6, 1, 0, State7), % S
-    checkSetDirection(Plyr, Move, State7, 1, 1, State8). % SE
+    checkSetNW(Plyr, Move, State, _, State1),
+    checkSetN(Plyr, Move, State1, _, State2),
+    checkSetNE(Plyr, Move, State2, _, State3),
+    checkSetW(Plyr, Move, State3, _, State4),
+    checkSetE(Plyr, Move, State4, _, State5),
+    checkSetSW(Plyr, Move, State5, _, State6),
+    checkSetS(Plyr, Move, State6, _, State7),
+    checkSetSE(Plyr, Move, State7, _, NewState).
 
-checkSetDirection(Plyr, [Row|Column], State, DirectionRow, DirectionColumn, NewState) :-
-    NextRow is Row + DirectionRow,
+% FOR CHANING THE STATE BASED ON THE MOVE
+checkSetNW(checkSetDir(_, _, _, -1, -1, _, _)).
+checkSetN(checkSetDir(_, _, _, -1, 0, _, _)).
+checkSetNE(checkSetDir(_, _, _, -1, 1, _, _)).
+checkSetW(checkSetDir(_, _, _, 0, -1, _, _)).
+checkSetE(checkSetDir(_, _, _, 0, 1, _, _)).
+checkSetSW(checkSetDir(_, _, _, 1, -1, _, _)).
+checkSetS(checkSetDir(_, _, _, 1, 0, _, _)).
+checkSetSE(checkSetDir(_, _, _, 1, 1, _, _)).
+
+checkSetDir(_, [Row|Column], State, DirRow, DirColumn, 0, State) :-
+    NextRow is Row + DirRow,
     NextRow > 0,
     NextRow < 6,
-    NextColumn is Column + DirectionColumn,
+    NextColumn is Column + DirColumn,
     NextColumn > 0,
-    NextColumn < 6,
+    NextColumn < 6.
+checkSetDir(Plyr, [Row|Column], State, DirRow, DirColumn, Set, NewState) :-
+    NextRow is Row + DirRow,
+    NextColumn is Column + DirColumn,
     get(State, [NextRow, NextColumn], Value),
-    checkNext(Plyr, State, [NextRow|NextColumn], Value, DirectionRow, DirectionColumn, Newstate).
+    checkNext(Plyr, State, [NextRow|NextColumn], Value, DirRow, DirColumn, Set, NewState).
 
-
-checkNext(Plyr, State, [NextRow|NextColumn], Value, DirectionRow, DirectionColumn, Newstate) :-
-    Value =:= 1,
-
-
-
-
-    %findMove(Plyr, [0, ColumnIdx], [Row|Rest], NewState) :-
-    %    findColumn(Plyr, ColumnIdx, Row, NewRow).
-    %    append(NewRow, Rest, NewState).
-    %findMove(Plyr, [RowIdx, ColumnIdx], [Row|Rest], NewState) :-
-    %    NewRowIdx is RowIdx - 1,
-    %    findMove(Plyr, [NewRowIdx, ColumnIdx], Rest, Inserted),
-    %    append(Row, Inserted, NewState).
-    %
-    %findColumn(Plyr, 0, [_|Rest], [Symbol|Rest]) :-
-    %    (
-    %        Plyr =:= 0 -> Symbol is 'o' ;
-    %        Plyr =:= 1 -> Symbol is 'x'
-    %    ).
-    %findColumn(Plyr, ColumnIdx, [Idx|Rest], [Idx|NewRow]) :-
-    %    NewColumnIdx is ColumnIdx - 1,
-    %    findColumn(Plyr, NewColumnIdx, Rest, NewRow).
+checkNext(_, State, _, '.', _, _, 0, State).
+checkNext(Plyr, State, _, Plyr, _, _, 1, State).
+checkNext(Plyr, State, CurrCheck, Value, DirRow, DirColumn, Set, NewState1) :-
+    Value \= Plyr,
+    Set is 0,
+    checkSetDir(Plyr, State, CurrCheck, DirRow, DirColumn, IsSet, NewState),
+    IsSet =:= 1,
+    set(NewState, NewState1, CurrCheck, Value).
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
@@ -278,17 +265,15 @@ checkNext(Plyr, State, [NextRow|NextColumn], Value, DirectionRow, DirectionColum
 %% define validmove(Plyr,State,Proposed). 
 %   - true if Proposed move by Plyr is valid at State.
 
-
-validmove(Plyr, State, [Row|Column]) :-
-    valid_move(Plyr, State, Row, Column).
-
-valid_move(Plyr, State, Row, Column) :-
-
-
-
-
-
-
+validmove(Plyr, State, Move) :-
+    checkSetDir(Plyr, Move, State, -1, -1, _, _); % NW
+    checkSetDir(Plyr, Move, State, -1, 0, _, _); % N
+    checkSetDir(Plyr, Move, State, -1, 1, _, _); % NE
+    checkSetDir(Plyr, Move, State, 0, -1, _, _); % W
+    checkSetDir(Plyr, Move, State, 0, 1, _, _); % E
+    checkSetDir(Plyr, Move, State, 1, -1, _, _); % SW
+    checkSetDir(Plyr, Move, State, 1, 0, _, _); % S
+    checkSetDir(Plyr, Move, State, 1, 1, _, _). % SE
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
@@ -301,9 +286,10 @@ valid_move(Plyr, State, Row, Column) :-
 %   NOTE2. If State is not terminal h should be an estimate of
 %          the value of state (see handout on ideas about
 %          good heuristics.
-
-
-
+h(State, Val) :-
+    score(State, 1, FirstCount),
+    score(State, 2, SndCount),
+    Val is SndCount - FirstCount.
 
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
@@ -314,7 +300,7 @@ valid_move(Plyr, State, Row, Column) :-
 %   - returns a value B that is less than the actual or heuristic value
 %     of all states.
 
-
+lowerBound(-1).
 
 
 
@@ -325,7 +311,7 @@ valid_move(Plyr, State, Row, Column) :-
 %% define upperBound(B). 
 %   - returns a value B that is greater than the actual or heuristic value
 %     of all states.
-
+upperBound(37).
 
 
 
