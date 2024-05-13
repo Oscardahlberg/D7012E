@@ -62,6 +62,7 @@
 % DO NOT CHANGE THE COMMENT BELOW.
 %
 % given helper: Inital state of the board
+
 initBoard([['.','.','.','.','.','.'],
     ['.','.','.','.','.','.'],
     ['.','.',1,2,'.','.'],
@@ -69,6 +70,10 @@ initBoard([['.','.','.','.','.','.'],
     ['.','.','.','.','.','.'], 
     ['.','.','.','.','.','.']],1).
 
+%initBoard([['.','.','.','.'],
+%    ['.',1,2,'.'],
+%    ['.',2,1,'.'],
+%    ['.','.','.','.']],1).
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
 %%%%%%%%%%%%%%%%%% IMPLEMENT: initialize(...)%%%%%%%%%%%%%%%%%%%%%
@@ -216,8 +221,8 @@ nextState(Plyr, Move, State, NewState, NextPlyr) :-
         Plyr =:= 1 -> NextPlyr is 2 ;
         Plyr =:= 2 -> NextPlyr is 1
     ),
-    set(State, NewState, Move, Plyr),
-    checkSetNW(Plyr, Move, State, _, State1),
+    set(State, SetState, Move, Plyr),
+    checkSetNW(Plyr, Move, SetState, _, State1),
     checkSetN(Plyr, Move, State1, _, State2),
     checkSetNE(Plyr, Move, State2, _, State3),
     checkSetW(Plyr, Move, State3, _, State4),
@@ -227,36 +232,36 @@ nextState(Plyr, Move, State, NewState, NextPlyr) :-
     checkSetSE(Plyr, Move, State7, _, NewState).
 
 % FOR CHANING THE STATE BASED ON THE MOVE
-checkSetNW(checkSetDir(_, _, _, -1, -1, _, _)).
-checkSetN(checkSetDir(_, _, _, -1, 0, _, _)).
-checkSetNE(checkSetDir(_, _, _, -1, 1, _, _)).
-checkSetW(checkSetDir(_, _, _, 0, -1, _, _)).
-checkSetE(checkSetDir(_, _, _, 0, 1, _, _)).
-checkSetSW(checkSetDir(_, _, _, 1, -1, _, _)).
-checkSetS(checkSetDir(_, _, _, 1, 0, _, _)).
-checkSetSE(checkSetDir(_, _, _, 1, 1, _, _)).
+checkSetNW(checkSetDir(_, _, _, -1, -1, _)).
+checkSetN(checkSetDir(_, _, _, -1, 0, _)).
+checkSetNE(checkSetDir(_, _, _, -1, 1, _)).
+checkSetW(checkSetDir(_, _, _, 0, -1, _)).
+checkSetE(checkSetDir(_, _, _, 0, 1, _)).
+checkSetSW(checkSetDir(_, _, _, 1, -1, _)).
+checkSetS(checkSetDir(_, _, _, 1, 0, _)).
+checkSetSE(checkSetDir(_, _, _, 1, 1, _)).
 
-checkSetDir(_, [Row|Column], State, DirRow, DirColumn, 0, State) :-
+checkIsOutside([Row|Column], DirRow, DirColumn) :-
     NextRow is Row + DirRow,
-    NextRow > 0,
-    NextRow < 6,
     NextColumn is Column + DirColumn,
-    NextColumn > 0,
-    NextColumn < 6.
-checkSetDir(Plyr, [Row|Column], State, DirRow, DirColumn, Set, NewState) :-
+    (NextRow < 0 ; NextRow > 5 ; NextColumn < 0 ; NextColumn > 5).
+
+checkSetDir(Plyr, [Row|Column], State, DirRow, DirColumn, NewState) :-
+    \+ checkIsOutside([Row|Column], DirRow, DirColumn),
     NextRow is Row + DirRow,
     NextColumn is Column + DirColumn,
     get(State, [NextRow, NextColumn], Value),
-    checkNext(Plyr, State, [NextRow|NextColumn], Value, DirRow, DirColumn, Set, NewState).
+    checkNext(Plyr, State, [NextRow|NextColumn], Value, DirRow, DirColumn, NewState).
 
-checkNext(_, State, _, '.', _, _, 0, State).
-checkNext(Plyr, State, _, Plyr, _, _, 1, State).
-checkNext(Plyr, State, CurrCheck, Value, DirRow, DirColumn, Set, NewState1) :-
+checkNext(_, State, _, '.', _, _, State) :-
+    fail.
+checkNext(Plyr, State, _, Plyr, _, _, State) :-
+    fail.
+checkNext(Plyr, State, CurrCheck, Value, DirRow, DirColumn, NewState1) :-
     Value \= Plyr,
-    Set is 0,
-    checkSetDir(Plyr, State, CurrCheck, DirRow, DirColumn, IsSet, NewState),
-    IsSet =:= 1,
-    set(NewState, NewState1, CurrCheck, Value).
+    \+ checkIsOutside(CurrCheck, DirRow, DirColumn), 
+    checkSetDir(Plyr, CurrCheck, State, DirRow, DirColumn, NewState),
+    set(NewState, NewState1, CurrCheck, Plyr).
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
@@ -265,15 +270,16 @@ checkNext(Plyr, State, CurrCheck, Value, DirRow, DirColumn, Set, NewState1) :-
 %% define validmove(Plyr,State,Proposed). 
 %   - true if Proposed move by Plyr is valid at State.
 
-validmove(Plyr, State, Move) :-
-    checkSetDir(Plyr, Move, State, -1, -1, _, _); % NW
-    checkSetDir(Plyr, Move, State, -1, 0, _, _); % N
-    checkSetDir(Plyr, Move, State, -1, 1, _, _); % NE
-    checkSetDir(Plyr, Move, State, 0, -1, _, _); % W
-    checkSetDir(Plyr, Move, State, 0, 1, _, _); % E
-    checkSetDir(Plyr, Move, State, 1, -1, _, _); % SW
-    checkSetDir(Plyr, Move, State, 1, 0, _, _); % S
-    checkSetDir(Plyr, Move, State, 1, 1, _, _). % SE
+validmove(Plyr, State, Move, NewState) :-
+    set(State, State, Move, Plyr),
+    %checkSetDir(Plyr, Move, State, -1, -1, NewState); % NW
+    %checkSetDir(Plyr, Move, State, -1, 0, NewState); % N
+    %checkSetDir(Plyr, Move, State, -1, 1, NewState); % NE
+    %checkSetDir(Plyr, Move, State, 0, -1, NewState); % W
+    checkSetDir(Plyr, Move, State, 0, 1, NewState); % E
+    checkSetDir(Plyr, Move, State, 1, -1, NewState); % SW
+    checkSetDir(Plyr, Move, State, 1, 0, NewState); % S
+    checkSetDir(Plyr, Move, State, 1, 1, NewState). % SE
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
 %
