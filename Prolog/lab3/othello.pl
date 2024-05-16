@@ -11,10 +11,10 @@
 
 
 %do not chagne the follwoing line!
-:- ensure_loaded('play.pl').
+%:- ensure_loaded('play.pl').
 :- ensure_loaded('testboards.pl').
 %:- ensure_loaded('rndBoard.pl').
-%:- ensure_loaded('stupid.pl').
+:- ensure_loaded('stupid.pl').
 
 
 % DO NOT CHANGE THIS BLOCK OF COMMENTS.
@@ -66,19 +66,26 @@
 %
 % given helper: Inital state of the board
 
-%initBoard([['.','.','.','.','.','.'],
-%    ['.','.','.','.','.','.'],
-%    ['.','.',1,2,'.','.'],
-%    ['.','.',2,1,'.','.'],
-%    ['.','.','.','.','.','.'], 
-%    ['.','.','.','.','.','.']],1).
+initBoard([['.','.','.','.','.','.'],
+    ['.','.','.','.','.','.'],
+    ['.','.',1,2,'.','.'],
+    ['.','.',2,1,'.','.'],
+    ['.','.','.','.','.','.'], 
+    ['.','.','.','.','.','.']],1).
 
-initBoard([['.','.','.',1,'.','.'],
-    ['.',1,'.',2,2,'.'],
-    [1,2,2,2,'.','.'],
-    [1,2,2,'.',2,1],
-    ['.',2,'.',2,'.','.'], 
-    [1,'.','.',1,1,'.']],1).
+%initBoard([['.','.','.',1,'.','.'],
+%    ['.',1,'.',2,2,'.'],
+%    [1,2,2,2,'.','.'],
+%    [1,2,2,'.',2,1],
+%    ['.',2,'.',2,'.','.'], 
+%    [1,'.','.',1,1,'.']],1).
+
+%initBoard([[2,2,2,2,2,2],
+%    [2,1,1,1,2,1],
+%    [2,2,1,2,1,1],
+%    [2,2,1,1,1,1],
+%    [2,2,2,1,2,2], 
+%    [1,1,1,1,1,1]],1).
 
 %initBoard([['.','.','.','.'],
 %    ['.',1,2,'.'],
@@ -109,6 +116,8 @@ winner(State, Plyr) :-
     terminal(State),
     scoreCount(State, 1, FPlyrScore), 
     scoreCount(State, 2, SPlyrScore),
+    writeln(FPlyrScore),
+    writeln(SPlyrScore),
     (
         FPlyrScore < SPlyrScore -> Plyr = 1 ;
         FPlyrScore > SPlyrScore -> Plyr = 2 ;

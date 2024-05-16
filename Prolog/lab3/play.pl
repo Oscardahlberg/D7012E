@@ -113,7 +113,7 @@ playgame(Plyr,State) :-
  
 getmove(1,State,Move) :- 
   showState(State), 
-  write('Please input move followed by a period: '), 
+  writeln('Please input move followed by a period: '), 
   read(Proposed), 
   validmove(1,State,Proposed), !, 
   Move = Proposed. 
