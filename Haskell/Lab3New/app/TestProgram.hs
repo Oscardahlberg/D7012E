@@ -56,8 +56,8 @@ p3 = fromString "\
 \    s := s + n;\
 \    n := n - 1;\
 \  end\
-\until n;\
-\write n;"
+\until (0-n)+1;\
+\write s;"
 
 p4 = fromString "\
 \count := 0;\
