@@ -30,11 +30,9 @@ kSmallestSubArrays(Arr, K, KSmallestSorted) :-
 smallestSubset(SubLists, Size, _, Sorted) :-
     Size =:= 1,
     Sorted = SubLists.
-
 smallestSubset(SubLists, Size, K, Sorted) :-
-    Size =:= K,
+    Size =< K,
     insertionSort(SubLists, Sorted).
-
 % Sorts the list and then only returns the k smallest
 smallestSubset(SubLists, Size, K, KSmallest) :-
     Size > K,

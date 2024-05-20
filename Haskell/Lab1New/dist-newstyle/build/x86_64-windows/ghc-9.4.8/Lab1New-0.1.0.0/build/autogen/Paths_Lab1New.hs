@@ -46,12 +46,12 @@ getBinDir, getLibDir, getDynLibDir, getDataDir, getLibexecDir, getSysconfDir :: 
 
 
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
-bindir     = "E:\\haskell\\cabal\\bin"
-libdir     = "E:\\haskell\\cabal\\x86_64-windows-ghc-9.4.8\\Lab1New-0.1.0.0-inplace"
-dynlibdir  = "E:\\haskell\\cabal\\x86_64-windows-ghc-9.4.8"
-datadir    = "E:\\haskell\\cabal\\x86_64-windows-ghc-9.4.8\\Lab1New-0.1.0.0"
-libexecdir = "E:\\haskell\\cabal\\Lab1New-0.1.0.0-inplace\\x86_64-windows-ghc-9.4.8\\Lab1New-0.1.0.0"
-sysconfdir = "E:\\haskell\\cabal\\etc"
+bindir     = "C:\\cabal\\bin"
+libdir     = "C:\\cabal\\x86_64-windows-ghc-9.4.8\\Lab1New-0.1.0.0-inplace"
+dynlibdir  = "C:\\cabal\\x86_64-windows-ghc-9.4.8"
+datadir    = "C:\\cabal\\x86_64-windows-ghc-9.4.8\\Lab1New-0.1.0.0"
+libexecdir = "C:\\cabal\\Lab1New-0.1.0.0-inplace\\x86_64-windows-ghc-9.4.8\\Lab1New-0.1.0.0"
+sysconfdir = "C:\\cabal\\etc"
 
 getBinDir     = catchIO (getEnv "Lab1New_bindir")     (\_ -> return bindir)
 getLibDir     = catchIO (getEnv "Lab1New_libdir")     (\_ -> return libdir)
